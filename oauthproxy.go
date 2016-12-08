@@ -334,10 +334,14 @@ func (p *OAuthProxy) SignInPage(rw http.ResponseWriter, req *http.Request, code 
 	p.ClearCookie(rw, req)
 	rw.WriteHeader(code)
 
-	redirect_url := req.URL.RequestURI()
-	if redirect_url == p.SignInPath {
+    queryrd, queryrdpresent := req.URL.Query()["rd"]
+    redirect_url := req.URL.RequestURI()
+    if queryrdpresent {
+        redirect_url = queryrd[0]
+    } else if req.URL.RequestURI() == p.SignInPath {
 		redirect_url = "/"
 	}
+
 
 	t := struct {
 		ProviderName  string
@@ -481,7 +485,7 @@ func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request) {
 	}
 
 	redirect := req.Form.Get("state")
-	if !strings.HasPrefix(redirect, "/") {
+    if len(redirect) == 0 {
 		redirect = "/"
 	}
 
