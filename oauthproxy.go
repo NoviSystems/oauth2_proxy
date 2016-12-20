@@ -508,6 +508,10 @@ func (p *OAuthProxy) OAuthCallback(rw http.ResponseWriter, req *http.Request) {
 func (p *OAuthProxy) AuthenticateOnly(rw http.ResponseWriter, req *http.Request) {
 	status := p.Authenticate(rw, req)
 	if status == http.StatusAccepted {
+        authInfo := rw.Header().Get("GAP-Auth")
+        if authInfo != "" {
+            rw.Header().Set("X-Session-User", authInfo)
+        }
 		rw.WriteHeader(http.StatusAccepted)
 	} else {
 		http.Error(rw, "unauthorized request", http.StatusUnauthorized)
